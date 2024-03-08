@@ -50,6 +50,13 @@ export interface ICreateArtistDto {
   grammy: boolean;
 }
 
+export interface ICreateAlbumDto {
+  name: string;
+  year: number;
+  artistId: string | null; // refers to Artist
+}
+
+//UTILS
 export enum ErrorMessages {
   SAME_PASSWORD = 'SAME_PASSWORD',
   WRONG_PASSWORD = 'WRONG_PASSWORD',

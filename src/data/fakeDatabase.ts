@@ -1,6 +1,8 @@
 import {
   ErrorMessages,
+  IAlbum,
   IArtist,
+  ICreateAlbumDto,
   ICreateArtistDto,
   ICreateUserDto,
   ITrack,
@@ -12,11 +14,15 @@ import { v4 as uuidv4 } from 'uuid';
 export class FakeDatabase {
   private users: IUser[];
   private artists: IArtist[];
+  private albums: IAlbum[];
 
   constructor() {
     this.users = [];
     this.artists = [];
+    this.albums = [];
   }
+
+  //GET
 
   getUsers() {
     return this.users;
@@ -25,6 +31,12 @@ export class FakeDatabase {
   getArtists() {
     return this.artists;
   }
+
+  getAlbums() {
+    return this.albums;
+  }
+
+  // GET by Id
 
   getUserById(id: string) {
     const user = this.users.find((user) => user.id === id);
@@ -35,6 +47,13 @@ export class FakeDatabase {
     const artist = this.artists.find((artist) => artist.id === id);
     return artist;
   }
+
+  getAlbumById(id: string) {
+    const album = this.albums.find((album) => album.id === id);
+    return album;
+  }
+
+  // CREATE
 
   createUser(userDto: ICreateUserDto) {
     const newUser: IUser = {
@@ -56,6 +75,17 @@ export class FakeDatabase {
     this.artists.push(newArtist);
     return newArtist;
   }
+
+  createAlbum(albumDto: ICreateAlbumDto) {
+    const newAlbum: IAlbum = {
+      ...albumDto,
+      id: uuidv4(),
+    };
+    this.albums.push(newAlbum);
+    return newAlbum;
+  }
+
+  // UPDATE
 
   updateUser(id: string, userDto: IUpdatePasswordDto) {
     const existingUserIndex = this.users.findIndex((user) => user.id === id);
@@ -101,6 +131,24 @@ export class FakeDatabase {
     return this.artists[existingArtistIndex];
   }
 
+  updateAlbum(id: string, albumDto: Partial<ICreateAlbumDto>) {
+    const existingAlbumIndex = this.albums.findIndex(
+      (album) => album.id === id,
+    );
+
+    if (existingAlbumIndex === -1) {
+      return null;
+    }
+
+    this.albums[existingAlbumIndex] = {
+      ...this.albums[existingAlbumIndex],
+      ...albumDto,
+    };
+
+    return this.albums[existingAlbumIndex];
+  }
+
+  // DELETE
   deleteUser(id: string) {
     const existingUser = this.users.find((user) => user.id === id);
 
@@ -113,13 +161,38 @@ export class FakeDatabase {
   }
 
   deleteArtist(id: string) {
-    const artist = this.artists.find((artist) => artist.id === id);
+    const deletingArtist = this.artists.find((artist) => artist.id === id);
 
-    if (!artist) {
+    if (!deletingArtist) {
       return null;
     }
 
     this.artists = this.artists.filter((artist) => artist.id !== id);
-    return artist;
+
+    //set album.artistId to null
+
+    const albumsWithArtist = this.albums.filter(
+      (album) => album.artistId === deletingArtist.id,
+    );
+
+    albumsWithArtist.forEach((albumWithArtist) =>
+      this.updateAlbum(albumWithArtist.id, {
+        ...albumWithArtist,
+        artistId: null,
+      }),
+    );
+
+    return deletingArtist;
+  }
+
+  deleteAlbum(id: string) {
+    const album = this.albums.find((album) => album.id === id);
+
+    if (!album) {
+      return null;
+    }
+
+    this.albums = this.albums.filter((album) => album.id !== id);
+    return album;
   }
 }

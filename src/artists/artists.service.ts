@@ -14,7 +14,7 @@ export class ArtistsService {
   create(createArtistDto: CreateArtistDto) {
     const { name, grammy } = createArtistDto;
     if (!name || !isBoolean(grammy)) {
-      throw new BadRequestException('Invalid data to create user');
+      throw new BadRequestException('Invalid data to create artist');
     }
     const artist = db.createArtist(createArtistDto);
     return artist;
@@ -44,7 +44,7 @@ export class ArtistsService {
       !updateArtistDto.name ||
       !isBoolean(updateArtistDto.grammy)
     ) {
-      throw new BadRequestException('Invalid id');
+      throw new BadRequestException('Invalid data to update artist');
     }
 
     const updatedArtist = db.updateArtist(id, updateArtistDto);
