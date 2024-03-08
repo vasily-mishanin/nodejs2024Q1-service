@@ -45,6 +45,11 @@ export interface IUpdatePasswordDto {
   newPassword: string; // new password
 }
 
+export interface ICreateArtistDto {
+  name: string;
+  grammy: boolean;
+}
+
 export enum ErrorMessages {
   SAME_PASSWORD = 'SAME_PASSWORD',
   WRONG_PASSWORD = 'WRONG_PASSWORD',

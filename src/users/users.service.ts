@@ -9,8 +9,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { FakeDatabase } from 'src/data/fakeDatabase';
 import { isValidUUID } from 'src/utils';
 import { ErrorMessages } from 'src/types';
-
-const db = new FakeDatabase();
+import { db } from 'src/main';
 
 @Injectable()
 export class UsersService {

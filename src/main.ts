@@ -1,6 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
+import { FakeDatabase } from './data/fakeDatabase';
+
+export const db = new FakeDatabase();
 
 dotenv.config();
 
