@@ -56,6 +56,13 @@ export interface ICreateAlbumDto {
   artistId: string | null; // refers to Artist
 }
 
+export interface ICreateTrackDto {
+  name: string;
+  artistId: string | null; // refers to Artist
+  albumId: string | null; // refers to Album
+  duration: number; // integer number
+}
+
 //UTILS
 export enum ErrorMessages {
   SAME_PASSWORD = 'SAME_PASSWORD',

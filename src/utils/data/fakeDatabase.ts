@@ -5,9 +5,11 @@ import {
   ICreateAlbumDto,
   ICreateArtistDto,
   ICreateUserDto,
+  ICreateTrackDto,
   ITrack,
   IUpdatePasswordDto,
   IUser,
+  IFavorites,
 } from 'src/types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -15,11 +17,18 @@ export class FakeDatabase {
   private users: IUser[];
   private artists: IArtist[];
   private albums: IAlbum[];
+  private tracks: ITrack[];
+  private favorites: IFavorites = {
+    artists: [],
+    albums: [],
+    tracks: [],
+  };
 
   constructor() {
     this.users = [];
     this.artists = [];
     this.albums = [];
+    this.tracks = [];
   }
 
   //GET
@@ -34,6 +43,10 @@ export class FakeDatabase {
 
   getAlbums() {
     return this.albums;
+  }
+
+  getTracks() {
+    return this.tracks;
   }
 
   // GET by Id
@@ -51,6 +64,11 @@ export class FakeDatabase {
   getAlbumById(id: string) {
     const album = this.albums.find((album) => album.id === id);
     return album;
+  }
+
+  getTrackById(id: string) {
+    const track = this.tracks.find((track) => track.id === id);
+    return track;
   }
 
   // CREATE
@@ -83,6 +101,15 @@ export class FakeDatabase {
     };
     this.albums.push(newAlbum);
     return newAlbum;
+  }
+
+  createTrack(teackDto: ICreateTrackDto) {
+    const newTrack: ITrack = {
+      ...teackDto,
+      id: uuidv4(),
+    };
+    this.tracks.push(newTrack);
+    return newTrack;
   }
 
   // UPDATE
@@ -148,6 +175,23 @@ export class FakeDatabase {
     return this.albums[existingAlbumIndex];
   }
 
+  updateTrack(id: string, trackDto: Partial<ICreateTrackDto>) {
+    const existingTrackIndex = this.tracks.findIndex(
+      (track) => track.id === id,
+    );
+
+    if (existingTrackIndex === -1) {
+      return null;
+    }
+
+    this.tracks[existingTrackIndex] = {
+      ...this.tracks[existingTrackIndex],
+      ...trackDto,
+    };
+
+    return this.tracks[existingTrackIndex];
+  }
+
   // DELETE
   deleteUser(id: string) {
     const existingUser = this.users.find((user) => user.id === id);
@@ -157,6 +201,7 @@ export class FakeDatabase {
     }
 
     this.users = this.users.filter((user) => user.id !== id);
+
     return existingUser;
   }
 
@@ -182,17 +227,141 @@ export class FakeDatabase {
       }),
     );
 
+    //set track.artistId to null after deletion
+
+    const tracksWithArtist = this.tracks.filter(
+      (track) => track.artistId === deletingArtist.id,
+    );
+
+    tracksWithArtist.forEach((trackWithArtist) =>
+      this.updateTrack(trackWithArtist.id, {
+        ...trackWithArtist,
+        artistId: null,
+      }),
+    );
+
+    // cleanup favorites
+    this.favorites.artists = this.favorites.artists.filter(
+      (id) => id !== deletingArtist.id,
+    );
+
     return deletingArtist;
   }
 
   deleteAlbum(id: string) {
-    const album = this.albums.find((album) => album.id === id);
+    const deletingAlbum = this.albums.find((album) => album.id === id);
 
-    if (!album) {
+    if (!deletingAlbum) {
       return null;
     }
 
     this.albums = this.albums.filter((album) => album.id !== id);
-    return album;
+
+    //set track.albumId to null after deletion
+
+    const tracksReferringtoThisAlbum = this.tracks.filter(
+      (track) => track.albumId === deletingAlbum.id,
+    );
+
+    tracksReferringtoThisAlbum.forEach((track) =>
+      this.updateTrack(track.id, {
+        ...track,
+        albumId: null,
+      }),
+    );
+
+    // cleanup favorites
+    this.favorites.albums = this.favorites.albums.filter(
+      (id) => id !== deletingAlbum.id,
+    );
+
+    return deletingAlbum;
+  }
+
+  deleteTrack(id: string) {
+    const deletingTrack = this.tracks.find((track) => track.id === id);
+
+    if (!deletingTrack) {
+      return null;
+    }
+
+    this.tracks = this.tracks.filter((track) => track.id !== id);
+
+    // cleanup favorites
+    this.favorites.tracks = this.favorites.tracks.filter(
+      (id) => id !== deletingTrack.id,
+    );
+
+    return deletingTrack;
+  }
+
+  // FAVORITES
+  // Favs - Add
+  addFavoriteTrack(id: string) {
+    if (
+      !this.favorites.tracks.includes(id) &&
+      this.tracks.some((track) => track.id === id)
+    ) {
+      this.favorites.tracks.push(id);
+    }
+  }
+
+  addFavoriteAlbum(id: string) {
+    if (
+      !this.favorites.albums.includes(id) &&
+      this.albums.some((album) => album.id === id)
+    ) {
+      this.favorites.albums.push(id);
+    }
+  }
+
+  addFavoriteArtist(id: string) {
+    if (
+      !this.favorites.artists.includes(id) &&
+      this.artists.some((artist) => artist.id === id)
+    ) {
+      this.favorites.artists.push(id);
+    }
+  }
+
+  // Favs - remove
+  removeFavoriteTrack(id: string) {
+    this.favorites.tracks = this.favorites.tracks.filter(
+      (trackId) => trackId !== id,
+    );
+  }
+
+  removeFavoriteAlbum(id: string) {
+    this.favorites.albums = this.favorites.albums.filter(
+      (albumId) => albumId !== id,
+    );
+  }
+
+  removeFavoriteArtist(id: string) {
+    this.favorites.artists = this.favorites.artists.filter(
+      (artistId) => artistId !== id,
+    );
+  }
+
+  // Favs - getAll Favs
+
+  findAllFavs() {
+    const tracks: ITrack[] = this.favorites.tracks.map((id) =>
+      this.getTrackById(id),
+    );
+
+    const albums: IAlbum[] = this.favorites.albums.map((id) =>
+      this.getAlbumById(id),
+    );
+
+    const artists: IArtist[] = this.favorites.artists.map((id) =>
+      this.getArtistById(id),
+    );
+
+    return {
+      artists,
+      albums,
+      tracks,
+    };
   }
 }

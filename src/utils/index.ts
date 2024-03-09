@@ -6,5 +6,5 @@ export function isValidUUID(uuid: string) {
 
 export const isBoolean = (val: any) => typeof val === 'boolean';
 
-export const isValidArtistId = (id: string | null) =>
+export const isValidReferenceId = (id: string | null) =>
   isValidUUID(id) || id === null ? true : false;

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { FakeDatabase } from 'src/data/fakeDatabase';
+import { FakeDatabase } from 'src/utils/data/fakeDatabase';
 import { isValidUUID } from 'src/utils';
 import { ErrorMessages } from 'src/types';
 import { db } from 'src/main';

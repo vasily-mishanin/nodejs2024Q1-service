@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
-import { isValidArtistId, isValidUUID } from 'src/utils';
+import { isValidReferenceId, isValidUUID } from 'src/utils';
 import { db } from 'src/main';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class AlbumsService {
   create(createAlbumDto: CreateAlbumDto) {
     const { name, year, artistId } = createAlbumDto;
 
-    if (!name || !year || !isValidArtistId(artistId)) {
+    if (!name || !year || !isValidReferenceId(artistId)) {
       throw new BadRequestException('Invalid data to create album');
     }
     const album = db.createAlbum(createAlbumDto);
@@ -45,7 +45,7 @@ export class AlbumsService {
       throw new BadRequestException('Invalid id');
     }
 
-    if ((!name && !year && !artistId) || !isValidArtistId(artistId)) {
+    if ((!name && !year && !artistId) || !isValidReferenceId(artistId)) {
       throw new BadRequestException('Invalid data to update album');
     }
 
