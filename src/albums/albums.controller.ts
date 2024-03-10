@@ -8,12 +8,15 @@ import {
   Delete,
   Put,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import { AlbumsService } from './albums.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
+import { TokenGuard } from 'src/guards/token.guard';
 
 @Controller('album')
+//@UseGuards(TokenGuard)
 export class AlbumsController {
   constructor(private readonly albumsService: AlbumsService) {}
 

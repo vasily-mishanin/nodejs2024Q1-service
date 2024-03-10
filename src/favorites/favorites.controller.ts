@@ -2,17 +2,16 @@ import {
   Controller,
   Get,
   Post,
-  Body,
-  Patch,
   Param,
   Delete,
+  HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
-import { CreateFavoriteTrackDto } from './dto/create-favorite-track.dto';
-import { CreateFavoriteAlbumDto } from './dto/create-favorite-album.dto';
-import { CreateFavoriteArtistDto } from './dto/create-favorite-artist.dto';
+import { TokenGuard } from 'src/guards/token.guard';
 
 @Controller('favs')
+//@UseGuards(TokenGuard)
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
@@ -24,34 +23,37 @@ export class FavoritesController {
   //POST
 
   @Post('track/:id')
-  createFavTrack(@Body() createFavoriteTrackDto: CreateFavoriteTrackDto) {
-    return this.favoritesService.createFavTrack(createFavoriteTrackDto);
+  createFavTrack(@Param('id') id: string) {
+    return this.favoritesService.createFavTrack(id);
   }
 
   @Post('album/:id')
-  createFavAlbum(@Body() createFavoriteAlbumDto: CreateFavoriteAlbumDto) {
-    return this.favoritesService.createFavAlbum(createFavoriteAlbumDto);
+  createFavAlbum(@Param('id') id: string) {
+    return this.favoritesService.createFavAlbum(id);
   }
 
   @Post('artist/:id')
-  createFavArtist(@Body() createFavoriteArtistDto: CreateFavoriteArtistDto) {
-    return this.favoritesService.createFavArtist(createFavoriteArtistDto);
+  createFavArtist(@Param('id') id: string) {
+    return this.favoritesService.createFavArtist(id);
   }
 
   // DELETE
 
   @Delete('track/:id')
-  deleteFavTrack(@Param() id: string) {
+  @HttpCode(204)
+  deleteFavTrack(@Param('id') id: string) {
     return this.favoritesService.removeFavTrack(id);
   }
 
   @Delete('album/:id')
-  deleteFavAlbum(@Param() id: string) {
+  @HttpCode(204)
+  deleteFavAlbum(@Param('id') id: string) {
     return this.favoritesService.removeFavAlbum(id);
   }
 
   @Delete('artist/:id')
-  deleteFavArtist(@Param() id: string) {
+  @HttpCode(204)
+  deleteFavArtist(@Param('id') id: string) {
     return this.favoritesService.removeFavArtist(id);
   }
 }

@@ -326,26 +326,53 @@ export class FakeDatabase {
 
   // Favs - remove
   removeFavoriteTrack(id: string) {
-    this.favorites.tracks = this.favorites.tracks.filter(
-      (trackId) => trackId !== id,
-    );
+    const favTrackId = this.favorites.tracks.find((trackId) => trackId === id);
+
+    if (!favTrackId) {
+      return null;
+    }
+
+    if (this.favorites)
+      this.favorites.tracks = this.favorites.tracks.filter(
+        (trackId) => trackId !== id,
+      );
+
+    return favTrackId;
   }
 
   removeFavoriteAlbum(id: string) {
+    const favAlbumId = this.favorites.albums.find((albumId) => albumId === id);
+
+    if (!favAlbumId) {
+      return null;
+    }
+
     this.favorites.albums = this.favorites.albums.filter(
       (albumId) => albumId !== id,
     );
+
+    return favAlbumId;
   }
 
   removeFavoriteArtist(id: string) {
+    const favArtistId = this.favorites.artists.find(
+      (artistId) => artistId === id,
+    );
+
+    if (!favArtistId) {
+      return null;
+    }
+
     this.favorites.artists = this.favorites.artists.filter(
       (artistId) => artistId !== id,
     );
+
+    return favArtistId;
   }
 
   // Favs - getAll Favs
 
-  findAllFavs() {
+  getAllFavs() {
     const tracks: ITrack[] = this.favorites.tracks.map((id) =>
       this.getTrackById(id),
     );
