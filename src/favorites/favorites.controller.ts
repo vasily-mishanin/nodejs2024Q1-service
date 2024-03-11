@@ -1,14 +1,5 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Param,
-  Delete,
-  HttpCode,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Param, Delete, HttpCode } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
-import { TokenGuard } from 'src/guards/token.guard';
 
 @Controller('favs')
 //@UseGuards(TokenGuard)

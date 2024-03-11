@@ -21,7 +21,7 @@ export class ArtistsService {
   }
 
   findAll() {
-    return db.getUsers();
+    return db.getArtists();
   }
 
   findOne(id: string) {

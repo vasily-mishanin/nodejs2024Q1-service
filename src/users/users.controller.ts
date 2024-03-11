@@ -3,12 +3,9 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   HttpCode,
-  HttpException,
-  HttpStatus,
   Put,
 } from '@nestjs/common';
 import { UsersService } from './users.service';

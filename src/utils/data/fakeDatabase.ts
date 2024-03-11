@@ -12,6 +12,7 @@ import {
   IFavorites,
 } from 'src/types';
 import { v4 as uuidv4 } from 'uuid';
+import { thinObjectOut } from '..';
 
 export class FakeDatabase {
   private users: IUser[];
@@ -34,7 +35,10 @@ export class FakeDatabase {
   //GET
 
   getUsers() {
-    return this.users;
+    return this.users.map((user) => {
+      const userWithNiPassword = thinObjectOut(user, ['password']);
+      return userWithNiPassword;
+    });
   }
 
   getArtists() {
@@ -53,7 +57,11 @@ export class FakeDatabase {
 
   getUserById(id: string) {
     const user = this.users.find((user) => user.id === id);
-    return user;
+    if (user) {
+      const userWithNiPassword = thinObjectOut(user, ['password']);
+      return userWithNiPassword;
+    }
+    return null;
   }
 
   getArtistById(id: string) {

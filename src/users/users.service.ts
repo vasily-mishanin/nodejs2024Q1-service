@@ -6,8 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { FakeDatabase } from 'src/utils/data/fakeDatabase';
-import { isValidUUID } from 'src/utils';
+import { isValidUUID, thinObjectOut } from 'src/utils';
 import { ErrorMessages } from 'src/types';
 import { db } from 'src/main';
 
@@ -18,8 +17,9 @@ export class UsersService {
     if (!login || !password) {
       throw new BadRequestException('Invalid data to create user');
     }
-    const { password: pswd, ...user } = db.createUser(createUserDto);
-    return user;
+    const user = db.createUser(createUserDto);
+    const userWithoutPassword = thinObjectOut(user, ['password']);
+    return userWithoutPassword;
   }
 
   findAll() {
@@ -68,8 +68,8 @@ export class UsersService {
       throw new ForbiddenException('Forbidden - wrong old password');
     }
 
-    const { password: pswd, ...user } = dbResponse;
-    return user;
+    const user = dbResponse;
+    return thinObjectOut(user, ['password']);
   }
 
   remove(id: string) {

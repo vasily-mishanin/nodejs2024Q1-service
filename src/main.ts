@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import { FakeDatabase } from './utils/data/fakeDatabase';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerModule } from '@nestjs/swagger';
 import * as YAML from 'yamljs';
 
 export const db = new FakeDatabase();
@@ -16,7 +16,7 @@ async function bootstrap() {
 
   const document = YAML.load('doc/api.yaml');
 
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('doc', app, document);
 
   await app.listen(port, () => console.log('Server is running on port ', port));
 }
