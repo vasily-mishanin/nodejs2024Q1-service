@@ -346,7 +346,6 @@ describe('Favorites (e2e)', () => {
       const deleteAlbumFromFavoritesResponse = await unauthorizedRequest
         .delete(favoritesRoutes.albums(albumId))
         .set(commonHeaders);
-
       expect(deleteAlbumFromFavoritesResponse.status).toBe(
         StatusCodes.NO_CONTENT,
       );
@@ -362,7 +361,6 @@ describe('Favorites (e2e)', () => {
       );
 
       expect(albumSearchResult).toBeUndefined();
-
       const cleanupResponse = await unauthorizedRequest
         .delete(albumsRoutes.delete(albumId))
         .set(commonHeaders);
@@ -386,7 +384,6 @@ describe('Favorites (e2e)', () => {
         .set(commonHeaders);
 
       expect(addArtistToFavoritesResponse.status).toBe(StatusCodes.CREATED);
-
       const deleteArtistFromFavoritesResponse = await unauthorizedRequest
         .delete(favoritesRoutes.artists(artistId))
         .set(commonHeaders);

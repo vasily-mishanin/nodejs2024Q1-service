@@ -1,5 +1,16 @@
 # Home Library Service
 
+Task: https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/rest-service/assignment.md
+
+How to run this app locally:  
+ Steps to get started (for clean project):  
+ - Clone this repo (`dev` branch)  
+ - Install dependencies: `npm install`  
+ - Create `.env` file (based on `.env.example`): `./.env`  
+ - Start Nest JS app by `npm run start`  
+ - Run tests `npm run test`  
+ - You can see Swagger docs on [http://localhost:4000/doc/](http://localhost:4000/doc/)
+
 ## Prerequisites
 
 - Git - [Download & Install Git](https://git-scm.com/downloads).

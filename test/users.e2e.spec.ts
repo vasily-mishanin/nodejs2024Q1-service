@@ -189,7 +189,6 @@ describe('Users (e2e)', () => {
           oldPassword: createUserDto.password,
           newPassword: 'NEW_PASSWORD',
         });
-
       expect(updateResponse2.statusCode).toBe(StatusCodes.FORBIDDEN);
 
       const cleanupResponse = await unauthorizedRequest
