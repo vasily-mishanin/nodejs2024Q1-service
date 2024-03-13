@@ -1,15 +1,22 @@
 # Home Library Service
 
-Task: https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/rest-service/assignment.md
+### 1 - REST service:
+
+Task-1: https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/rest-service/assignment.md
 
 How to run this app locally:  
- Steps to get started (for clean project):  
- - Clone this repo (`dev` branch)  
- - Install dependencies: `npm install`  
- - Create `.env` file (based on `.env.example`): `./.env`  
- - Start Nest JS app by `npm run start`  
- - Run tests `npm run test`  
- - You can see Swagger docs on [http://localhost:4000/doc/](http://localhost:4000/doc/)
+ Steps to get started (for clean project):
+
+- Clone this repo (`dev` branch)
+- Install dependencies: `npm install`
+- Create `.env` file (based on `.env.example`): `./.env`
+- Start Nest JS app by `npm run start`
+- Run tests `npm run test`
+- You can see Swagger docs on [http://localhost:4000/doc/](http://localhost:4000/doc/)
+
+### 2 - Home Library Service: Part 2 - Containerization, Docker and Database & ORM
+
+Task-2: https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/containerization-database-orm/assignment.md
 
 ## Prerequisites
 
