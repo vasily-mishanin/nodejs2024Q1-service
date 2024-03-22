@@ -7,40 +7,52 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 model User {
-  id String @id @default(uuid()) @db.Uuid
-  login String @unique
-  password String
-  version Int 
+  id        String      @id @default(uuid()) @db.Uuid
+  login     String      @unique
+  password  String
+  version   Int
   createdAt Int // timestamp of creation
   updatedAt Int // timestamp of last update
+  favorites Favorites[]
 }
 
-
 model Artist {
-  id String @id @default(uuid()) @db.Uuid
-  name String
-  grammy Boolean 
-  albums Album[] // Artist can has zero or many Albums 
-  tracks  Track[] // samee with tracks 
+  id        String      @id @default(uuid()) @db.Uuid
+  name      String
+  grammy    Boolean
+  albums    Album[] // Artist can has zero or many Albums 
+  tracks    Track[] // samee with tracks 
+  favorites Favorites[]
 }
 
 model Album {
-  id String @id @default(uuid()) @db.Uuid
-  name String
-  year Int
-  artist Artist? @relation(fields: [artistId], references: [id])
-  artistId String? 
-  tracks    Track[]
+  id        String      @id @default(uuid()) @db.Uuid
+  name      String
+  year      Int
+  artist    Artist?     @relation(fields: [artistId], references: [id]) // Album can have zero or one artist
+  artistId  String?
+  tracks    Track[] // Album can have zero or more tracks 
+  favorites Favorites[]
 }
 
+// track can refer to 
 model Track {
-  id String @id @default(uuid()) @db.Uuid
-  name String
-  artist      Artist?  @relation(fields: [artistId], references: [id])
-  artistId String?
-  album Album? @relation(fields: [albumId], references: [id])
-  albumId String?
-  duration Int
+  id        String      @id @default(uuid()) @db.Uuid
+  name      String
+  artist    Artist?     @relation(fields: [artistId], references: [id])
+  artistId  String?
+  album     Album?      @relation(fields: [albumId], references: [id])
+  albumId   String?
+  duration  Int
+  favorites Favorites[]
+}
+
+model Favorites {
+  id      String   @id @default(uuid()) @db.Uuid
+  user    User     @relation(fields: [userId], references: [id])
+  userId  String
+  artists Artist[]
+  albums  Album[]
+  tracks  Track[]
 }
