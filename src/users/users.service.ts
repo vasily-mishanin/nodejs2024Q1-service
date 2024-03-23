@@ -7,31 +7,49 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { isValidUUID, thinObjectOut } from 'src/utils';
-import { ErrorMessages } from 'src/types';
-import { db } from 'src/main';
+import { ReturnedUser } from 'src/types';
+import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
+  constructor(private prisma: PrismaService) {}
+
+  async create(createUserDto: CreateUserDto) {
     const { login, password } = createUserDto;
     if (!login || !password) {
       throw new BadRequestException('Invalid data to create user');
     }
-    const user = db.createUser(createUserDto);
-    const userWithoutPassword = thinObjectOut(user, ['password']);
+    const creationTime = Date.now();
+
+    const user = await this.prisma.user.create({
+      data: {
+        ...createUserDto,
+        createdAt: creationTime,
+        updatedAt: creationTime,
+        version: 1,
+      },
+    });
+
+    let userWithoutPassword = thinObjectOut(user, ['password']) as ReturnedUser;
+
+    userWithoutPassword = {
+      ...userWithoutPassword,
+      createdAt: Number(userWithoutPassword.createdAt),
+      updatedAt: Number(userWithoutPassword.updatedAt),
+    };
     return userWithoutPassword;
   }
 
-  findAll() {
-    return db.getUsers();
+  async findAll() {
+    return await this.prisma.user.findMany();
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     if (!isValidUUID(id)) {
       throw new BadRequestException('Invalid id');
     }
 
-    const user = db.getUserById(id);
+    const user = await this.prisma.user.findUnique({ where: { id: id } });
 
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
@@ -40,7 +58,7 @@ export class UsersService {
     return user;
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     const { newPassword, oldPassword } = updateUserDto;
 
     if (!isValidUUID(id)) {
@@ -55,34 +73,51 @@ export class UsersService {
       throw new ForbiddenException('New password must be different');
     }
 
-    const dbResponse = db.updateUser(id, updateUserDto);
+    const existingUser = await this.prisma.user.findUnique({
+      where: { id: id },
+    });
 
-    if (!dbResponse) {
+    if (!existingUser) {
       throw new NotFoundException('Updating user not found');
     }
 
-    if (dbResponse === ErrorMessages.SAME_PASSWORD) {
+    if (existingUser.password === updateUserDto.newPassword) {
       throw new ForbiddenException('New password must be different');
     }
-    if (dbResponse === ErrorMessages.WRONG_PASSWORD) {
+
+    if (existingUser.password !== updateUserDto.oldPassword) {
       throw new ForbiddenException('Forbidden - wrong old password');
     }
 
-    const user = dbResponse;
-    return thinObjectOut(user, ['password']);
+    const updatedUser = await this.prisma.user.update({
+      where: { id: id },
+      data: {
+        password: updateUserDto.newPassword,
+        updatedAt: Date.now(),
+        version: existingUser.version + 1,
+      },
+    });
+    let returnedUser = thinObjectOut(updatedUser, ['password']) as ReturnedUser;
+
+    returnedUser = {
+      ...returnedUser,
+      createdAt: Number(returnedUser.createdAt),
+      updatedAt: Number(returnedUser.updatedAt),
+    };
+
+    return returnedUser;
   }
 
-  remove(id: string) {
+  async remove(id: string) {
     if (!isValidUUID(id)) {
       throw new BadRequestException('Invalid id');
     }
 
-    const user = db.deleteUser(id);
-
-    if (!user) {
+    try {
+      const user = await this.prisma.user.delete({ where: { id: id } });
+      return user;
+    } catch (error) {
       throw new NotFoundException('Deleting user not found');
     }
-
-    return user;
   }
 }

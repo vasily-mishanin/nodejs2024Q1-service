@@ -34,6 +34,10 @@ export interface IFavorites {
   tracks: string[]; // favorite tracks ids
 }
 
+// RETURNED
+
+export type ReturnedUser = Omit<IUser, 'password'>;
+
 // DTO
 export interface ICreateUserDto {
   login: string;
@@ -67,4 +71,8 @@ export interface ICreateTrackDto {
 export enum ErrorMessages {
   SAME_PASSWORD = 'SAME_PASSWORD',
   WRONG_PASSWORD = 'WRONG_PASSWORD',
+}
+
+export interface BigInt {
+  toJSON(): string;
 }

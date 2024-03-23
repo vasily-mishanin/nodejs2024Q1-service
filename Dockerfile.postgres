@@ -10,4 +10,6 @@ ENV POSTGRES_PASSWORD=qwe123
 EXPOSE 5432
 
 # docker build -t my-postgres-image:1 -f Dockerfile.postgres . 
-# docker run -d --name my-postgres-container -p 5432:5432 my-postgres-image:1
+# docker run -d --name my-postgres-container -p 5432:5432 my-postgres-image:1 
+
+# echo "my_password1_123" | docker secret create my_postgres_password -
