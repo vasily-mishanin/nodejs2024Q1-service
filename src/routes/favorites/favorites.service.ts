@@ -5,15 +5,35 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { db } from 'src/main';
+import { PrismaService } from 'src/prisma.service';
 import { isValidUUID } from 'src/utils';
 
 @Injectable()
 export class FavoritesService {
-  findAll() {
-    return db.getAllFavs();
+  constructor(private prisma: PrismaService) {}
+
+  async findAll() {
+    const favorites = await this.prisma.favorites.findMany({
+      include: {
+        artists: true,
+        albums: true,
+        tracks: true,
+      },
+    });
+
+    console.log('----FAVS-----', favorites);
+    if (!favorites.length) {
+      return {
+        artists: [],
+        albums: [],
+        tracks: [],
+      };
+    }
+
+    return favorites;
   }
 
-  createFavTrack(id: string) {
+  async createFavTrack(id: string) {
     if (!isValidUUID(id)) {
       throw new BadRequestException('Invalid id');
     }
@@ -27,7 +47,7 @@ export class FavoritesService {
     db.addFavoriteTrack(id);
   }
 
-  createFavAlbum(id: string) {
+  async createFavAlbum(id: string) {
     if (!isValidUUID(id)) {
       throw new BadRequestException('Invalid id');
     }
@@ -41,7 +61,7 @@ export class FavoritesService {
     db.addFavoriteAlbum(id);
   }
 
-  createFavArtist(id: string) {
+  async createFavArtist(id: string) {
     if (!isValidUUID(id)) {
       throw new BadRequestException('Invalid id');
     }
@@ -57,7 +77,7 @@ export class FavoritesService {
 
   // REMOVE
 
-  removeFavTrack(id: string) {
+  async removeFavTrack(id: string) {
     if (!isValidUUID(id)) {
       throw new BadRequestException('Invalid id');
     }
@@ -69,7 +89,7 @@ export class FavoritesService {
     }
   }
 
-  removeFavAlbum(id: string) {
+  async removeFavAlbum(id: string) {
     if (!isValidUUID(id)) {
       throw new BadRequestException('Invalid id');
     }
@@ -81,7 +101,7 @@ export class FavoritesService {
     }
   }
 
-  removeFavArtist(id: string) {
+  async removeFavArtist(id: string) {
     if (!isValidUUID(id)) {
       throw new BadRequestException('Invalid id');
     }
