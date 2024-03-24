@@ -12,6 +12,45 @@ import { isValidUUID } from 'src/utils';
 export class FavoritesService {
   constructor(private prisma: PrismaService) {}
 
+  async createUserIfNotExists() {
+    // we have no auth yet so lets create a user to add favorites to
+    // TODO - implement auth and current user
+    let existingUser = await this.prisma.user.findFirst({
+      where: { login: 'TEST_USER_FAV' },
+    });
+
+    if (!existingUser) {
+      const creationTime = Date.now();
+      existingUser = await this.prisma.user.create({
+        data: {
+          login: 'TEST_USER_FAV',
+          password: 'TEST_PASSWORD',
+          createdAt: creationTime,
+          updatedAt: creationTime,
+          version: 1,
+        },
+      });
+    }
+
+    return existingUser;
+  }
+
+  // helper
+  // TODO - remove after adding auth
+  async getFavoriteRecordOrCreateOne() {
+    // Check if a Favorites record already exists
+    let favorites = await this.prisma.favorites.findFirst();
+
+    if (!favorites) {
+      // If no Favorites record exists, create a new one
+      favorites = await this.prisma.favorites.create({
+        data: {},
+      });
+    }
+
+    return favorites;
+  }
+
   async findAll() {
     const favorites = await this.prisma.favorites.findMany({
       include: {
@@ -30,86 +69,188 @@ export class FavoritesService {
       };
     }
 
-    return favorites;
+    return favorites[0];
   }
 
-  async createFavTrack(id: string) {
-    if (!isValidUUID(id)) {
+  // ADD TO FAVORITES
+  async addFavTrack(trackId: string) {
+    if (!isValidUUID(trackId)) {
       throw new BadRequestException('Invalid id');
     }
 
-    const track = db.getTrackById(id);
-
-    if (!track) {
-      throw new UnprocessableEntityException(`No track with id ${id} found`);
+    try {
+      await this.prisma.track.findFirstOrThrow({
+        where: { id: trackId },
+      });
+    } catch (error) {
+      throw new UnprocessableEntityException(
+        `No track with id ${trackId} found`,
+      );
     }
 
-    db.addFavoriteTrack(id);
-  }
+    const favorites = await this.getFavoriteRecordOrCreateOne();
 
-  async createFavAlbum(id: string) {
-    if (!isValidUUID(id)) {
-      throw new BadRequestException('Invalid id');
-    }
+    try {
+      const newFavorite = await this.prisma.favorites.update({
+        where: { id: favorites.id },
+        data: {
+          tracks: { connect: { id: trackId } },
+        },
+      });
 
-    const album = db.getAlbumById(id);
-
-    if (!album) {
-      throw new UnprocessableEntityException(`No album with id ${id} found`);
-    }
-
-    db.addFavoriteAlbum(id);
-  }
-
-  async createFavArtist(id: string) {
-    if (!isValidUUID(id)) {
-      throw new BadRequestException('Invalid id');
-    }
-
-    const artist = db.getArtistById(id);
-
-    if (!artist) {
-      throw new UnprocessableEntityException(`No album with id ${id} found`);
-    }
-
-    db.addFavoriteArtist(id);
-  }
-
-  // REMOVE
-
-  async removeFavTrack(id: string) {
-    if (!isValidUUID(id)) {
-      throw new BadRequestException('Invalid id');
-    }
-
-    const deletedTrackId = db.removeFavoriteTrack(id);
-
-    if (!deletedTrackId) {
-      throw new NotFoundException(`Track with id ${id} not found`);
+      return newFavorite;
+    } catch (error) {
+      throw new UnprocessableEntityException(
+        `Can not add Track with id ${trackId} to favorites`,
+      );
     }
   }
 
-  async removeFavAlbum(id: string) {
-    if (!isValidUUID(id)) {
-      throw new BadRequestException('Invalid id');
+  async addFavAlbum(albumId: string) {
+    if (!isValidUUID(albumId)) {
+      throw new BadRequestException('Invalid album id');
     }
 
-    const deletedAlbumId = db.removeFavoriteAlbum(id);
+    try {
+      await this.prisma.album.findFirstOrThrow({
+        where: { id: albumId },
+      });
+    } catch (error) {
+      throw new UnprocessableEntityException(
+        `No album with id ${albumId} found`,
+      );
+    }
 
-    if (!deletedAlbumId) {
-      throw new NotFoundException(`Album with id ${id} not found`);
+    const favorites = await this.getFavoriteRecordOrCreateOne();
+
+    try {
+      const newFavorite = await this.prisma.favorites.update({
+        where: { id: favorites.id },
+        data: {
+          albums: { connect: { id: albumId } },
+        },
+      });
+
+      return newFavorite;
+    } catch (error) {
+      throw new UnprocessableEntityException(
+        `Can not add Album with id ${albumId} to favorites`,
+      );
     }
   }
 
-  async removeFavArtist(id: string) {
-    if (!isValidUUID(id)) {
+  async addFavArtist(artistId: string) {
+    if (!isValidUUID(artistId)) {
       throw new BadRequestException('Invalid id');
     }
 
-    const deletedArtistId = db.removeFavoriteArtist(id);
-
-    if (!deletedArtistId) {
-      throw new NotFoundException(`Artist with id ${id} not found`);
+    try {
+      await this.prisma.artist.findFirstOrThrow({
+        where: { id: artistId },
+      });
+    } catch (error) {
+      throw new UnprocessableEntityException(
+        `No artist with id ${artistId} found`,
+      );
     }
+
+    const favorites = await this.getFavoriteRecordOrCreateOne();
+
+    try {
+      const newFavorite = await this.prisma.favorites.update({
+        where: { id: favorites.id },
+        data: {
+          artists: { connect: { id: artistId } },
+        },
+      });
+
+      return newFavorite;
+    } catch (error) {
+      throw new UnprocessableEntityException(
+        `Can not add Artist with id ${artistId} to favorites`,
+      );
+    }
+  }
+
+  // REMOVE FROM FAVORITES
+  async removeFavTrack(trackId: string) {
+    if (!isValidUUID(trackId)) {
+      throw new BadRequestException('Invalid track id');
+    }
+
+    // Check if the favorite exists for the user and track
+    const favorites = await this.prisma.favorites.findFirst({
+      where: {
+        tracks: { some: { id: trackId } }, // Check if the track ID is in the tracks array
+      },
+    });
+
+    if (!favorites) {
+      throw new NotFoundException(`Track with id ${trackId} not found`);
+    }
+
+    // Remove the track from the favorite
+    const updatedFavorite = await this.prisma.favorites.update({
+      where: { id: favorites.id },
+      data: {
+        tracks: { disconnect: { id: trackId } }, // Disconnect the track from the favorite
+      },
+    });
+
+    return updatedFavorite;
+  }
+
+  async removeFavAlbum(albumId: string) {
+    if (!isValidUUID(albumId)) {
+      throw new BadRequestException('Invalid album id');
+    }
+
+    // Check if the favorite exists for the user and album
+    const favorites = await this.prisma.favorites.findFirst({
+      where: {
+        albums: { some: { id: albumId } }, // Check if the album ID is in the albums array
+      },
+    });
+
+    if (!favorites) {
+      throw new NotFoundException(`Album with id ${albumId} not found`);
+    }
+
+    // Remove the album from the favorite
+    const updatedFavorite = await this.prisma.favorites.update({
+      where: { id: favorites.id },
+      data: {
+        albums: { disconnect: { id: albumId } }, // Disconnect the album from the favorite
+      },
+    });
+
+    return updatedFavorite;
+  }
+
+  async removeFavArtist(artistId: string) {
+    if (!isValidUUID(artistId)) {
+      throw new BadRequestException('Invalid artist id');
+    }
+
+    // Check if the favorite exists for the user and artist
+    const favorites = await this.prisma.favorites.findFirst({
+      where: {
+        artists: { some: { id: artistId } }, // Check if the artist ID is in the artists array
+      },
+    });
+
+    if (!favorites) {
+      throw new NotFoundException(`Artist with id ${artistId} not found`);
+    }
+
+    // Remove the artist from the favorites
+    const updatedFavorite = await this.prisma.favorites.update({
+      where: { id: favorites.id },
+      data: {
+        artists: { disconnect: { id: artistId } }, // Disconnect the album from the favorites
+      },
+    });
+
+    return updatedFavorite;
   }
 }
