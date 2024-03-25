@@ -4,7 +4,6 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { db } from 'src/main';
 import { PrismaService } from 'src/prisma.service';
 import { isValidUUID } from 'src/utils';
 

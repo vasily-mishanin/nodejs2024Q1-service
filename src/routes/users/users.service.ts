@@ -17,7 +17,9 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     const { login, password } = createUserDto;
     if (!login || !password) {
-      throw new BadRequestException('Invalid data to create user');
+      throw new BadRequestException(
+        `Invalid data to create user: ${createUserDto}`,
+      );
     }
     const creationTime = Date.now();
 

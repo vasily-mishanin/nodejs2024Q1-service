@@ -22,7 +22,12 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "prisma:format": "prisma format",
     "prisma:generate": "npx prisma generate",
-    "prisma:migrate:dev": "npx prisma migrate dev"
+    "prisma:migrate:dev": "npx prisma migrate dev",
+    "start:migrate:prod": "prisma migrate deploy && npm run start:prod",
+    "start:migrate:dev": "prisma migrate deploy && npm run start:dev",
+    "audit": "npm audit --audit-level=high",
+    "audit:docker:app": "docker scout cves nodejs2024q1-service-app --format only-packages --only-severity critical,high",
+    "audit:docker:db": "docker scout cves nodejs2024q1-service-db_postgres --format only-packages --only-severity critical,high"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",

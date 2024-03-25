@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
-import { db } from 'src/main';
 import { isValidUUID } from 'src/utils';
 import { isBoolean } from 'class-validator';
 import { PrismaService } from 'src/prisma.service';

@@ -2,14 +2,12 @@
 FROM postgres:latest
 
 # Set environment variables for PostgreSQL
-ENV POSTGRES_DB=restmusicdb
-ENV POSTGRES_USER=justuser
-ENV POSTGRES_PASSWORD=qwe123
+# ENV POSTGRES_DB=restmusicdb
+# ENV POSTGRES_USER=justuser
+# ENV POSTGRES_PASSWORD=qwe123
 
 # Expose the PostgreSQL port
 EXPOSE 5432
 
 # docker build -t my-postgres-image:1 -f Dockerfile.postgres . 
 # docker run -d --name my-postgres-container -p 5432:5432 my-postgres-image:1 
-
-# echo "my_password1_123" | docker secret create my_postgres_password -

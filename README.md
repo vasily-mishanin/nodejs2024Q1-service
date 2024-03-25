@@ -18,6 +18,8 @@ How to run this app locally:
 
 Task-2: https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/containerization-database-orm/assignment.md
 
+Task-3: https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/containerization-database-orm/score.md
+
 ## Prerequisites
 
 - Git - [Download & Install Git](https://git-scm.com/downloads).
