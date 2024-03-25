@@ -59,7 +59,7 @@ export class FavoritesService {
       },
     });
 
-    console.log('----FAVS-----', favorites);
+    console.log('----FAVS----->', favorites);
     if (!favorites.length) {
       return {
         artists: [],
