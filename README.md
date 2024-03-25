@@ -24,6 +24,8 @@ Prerequisites:
 
 - Free ports: `4000` - for Nest.js app
 - Docker desktop installed
+- Stop and remove running containers
+- Clear (remove) previous images to escape image names conflicts
 
 ### Steps to get started (run scripts from the root of the project):
 
