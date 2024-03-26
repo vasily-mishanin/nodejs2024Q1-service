@@ -30,61 +30,31 @@ Prerequisites:
 
 ### Steps to get started (run scripts from the root of the project):
 
-     - Clone this repo (`dev-part-2` branch)
-     - If you want to start locally - install dependencies: `npm install`
-     - Create `.env` file (based on `.env.example`): `./.env`
-     - Create images for DB and APP: `docker-compose build --no-cache`
-     - Run db and app containers in their inner network:  `docker-compose up`
-     - Go to source code root dir and run tests`npm run test`
-     - Try to change something in `/src` (for example `console.log('----FAVS-----', favorites);` in `favorites.service.ts`) and  run `npm run test`  again
-     - After successful run you can see Swagger docs on [http://localhost:4000/doc/](http://localhost:4000/doc/)
+Clone this repo (`dev-part-2` branch)
+If you want to start locally - install dependencies: `npm install`
+Create `.env` file (based on `.env.example`): `./.env`
+Create images for DB and APP: `docker-compose build --no-cache`
+Run db and app containers in their inner network: `docker-compose up`
+Go to source code root dir and run tests`npm run test`
+Try to change something in `/src` (for example `console.log('----FAVS-----', favorites);` in `favorites.service.ts`) and run `npm run test` again
+After successful run you can see Swagger docs on [http://localhost:4000/doc/](http://localhost:4000/doc/)
 
-       Additionaly:
-     -  Built image is pushed to DockerHub
-        - https://hub.docker.com/r/vasilymishanin/nodejs2024q1-service-app
-        - https://hub.docker.com/r/vasilymishanin/nodejs2024q1-service-db_postgres
-       ![Screenshot 2024-03-25 at 23 17 42](https://github.com/vasily-mishanin/nodejs2024Q1-service/assets/58665427/1454bd5d-a3f5-4d33-a13b-bb121aa3d759)
-      - Implemented npm script for vulnerabilities scanning (free solution)
+Additionaly:
+Built image is pushed to DockerHub - https://hub.docker.com/r/vasilymishanin/nodejs2024q1-service-app - https://hub.docker.com/r/vasilymishanin/nodejs2024q1-service-db_postgres
+![Screenshot 2024-03-25 at 23 17 42](https://github.com/vasily-mishanin/nodejs2024Q1-service/assets/58665427/1454bd5d-a3f5-4d33-a13b-bb121aa3d759)  
+Implemented npm script for vulnerabilities scanning (free solution)
 
-<img width="902" alt="Screenshot 2024-03-25 at 23 28 09" src="https://github.com/vasily-mishanin/nodejs2024Q1-service/assets/58665427/3ff0f5f8-1c37-441d-8b7a-0df919daa7a0">  
-       Try  `npm run audit:docker:app`, `npm run audit:docker:db` or `npm run audit`
+<img width="902" alt="Screenshot 2024-03-25 at 23 28 09" src="https://github.com/vasily-mishanin/nodejs2024Q1-service/assets/58665427/3ff0f5f8-1c37-441d-8b7a-0df919daa7a0">
 
-### Score-task-2
+Try `npm run audit:docker:app`, `npm run audit:docker:db` or `npm run audit`
 
-Basic Scope
+Score: `340` / 360
 
-1. Containerization, Docker
+## 3 - REST service: Logging & Error Handling and Authentication and Authorization
 
-- [x] +20 Readme.md has instruction how to run application
-- [x] +30 user-defined bridge is created and configured
-- [x] +30 container auto restart after crash
-- [x] +20 application is restarting upon changes implemented into src folder
-- [x] +30 database files and logs to be stored in volumes instead of container
+Task-3: https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/logging-error-authentication-authorization/assignment.md
 
-2. Database (PostgreSQL) & ORM
-
-- [x] +20 Users data is stored in PostgreSQL database and typeorm / prisma interacts with the database to manipulate data.
-- [x] +20 Artists data is stored in PostgreSQL database and typeorm / prisma interacts with the database to manipulate data.
-- [x] +20 Albums data is stored in PostgreSQL database and typeorm / prisma interacts with the database to manipulate data.
-- [x] +20 Tracks data is stored in PostgreSQL database and typeorm / prisma interacts with the database to manipulate data.
-- [x] +20 Favorites data is stored in PostgreSQL database and typeorm / prisma interacts with the database to manipulate data.
-      Advanced Scope
-
-1. Containerization, Docker
-   `NOT` -20 Final size of the Docker image with application is less than 500 MB
-
-- [x] +10 Implemented npm script for vulnerabilities scanning (free solution)
-- [x] +20 Your built image is pushed to DockerHub
-
-2. Database & ORM
-
-- [x] +30 Migrations are used to create database entities
-- [x] +10 Variables used for connection to database to be stored in .env
-- [x] +10 Prisma relations create relations between entities
-- [x] +30 Local PostgreSQL installation is not required for task check, connection is implemented to database stored in docker container (on the basis of the previous task)
-
-6.  Score: `340` / 360
-7.  Done 2024-03-25 / deadline 2024-03-26
+Score-task-3: https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/logging-error-authentication-authorization/score.md
 
 ## Prerequisites
 
