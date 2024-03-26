@@ -13,6 +13,13 @@ export interface IArtist {
   grammy: boolean;
 }
 
+export interface IAlbum {
+  id: string; // uuid v4
+  name: string;
+  year: number;
+  artistId: string | null; // refers to Artist
+}
+
 export interface ITrack {
   id: string; // uuid v4
   name: string;
@@ -21,18 +28,15 @@ export interface ITrack {
   duration: number; // integer number
 }
 
-export interface IAlbum {
-  id: string; // uuid v4
-  name: string;
-  year: number;
-  artistId: string | null; // refers to Artist
-}
-
 export interface IFavorites {
   artists: string[]; // favorite artists ids
   albums: string[]; // favorite albums ids
   tracks: string[]; // favorite tracks ids
 }
+
+// RETURNED
+
+export type ReturnedUser = Omit<IUser, 'password'>;
 
 // DTO
 export interface ICreateUserDto {
@@ -67,4 +71,8 @@ export interface ICreateTrackDto {
 export enum ErrorMessages {
   SAME_PASSWORD = 'SAME_PASSWORD',
   WRONG_PASSWORD = 'WRONG_PASSWORD',
+}
+
+export interface BigInt {
+  toJSON(): string;
 }

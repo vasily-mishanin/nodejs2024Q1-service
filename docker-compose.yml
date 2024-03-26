@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  db_postgres:
+    container_name: postgres-container
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    # ports:
+    #  - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  app:
+    container_name: nest-app
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '${APP_HOST_PORT}:${APP_CONTAINER_PORT}'
+    environment:
+      # NODE_ENV: ${NODE_ENV:-production}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_PORT: ${DB_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      - db_postgres
+    networks:
+      - app-network
+    volumes:
+      - ./src:/app/src
+
+volumes:
+  pgdata:
+
+networks:
+  app-network:
+    driver: bridge
+# docker network inspect nodejs2024q1-service_app-network

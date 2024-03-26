@@ -1,11 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
-import { FakeDatabase } from './utils/data/fakeDatabase';
 import { SwaggerModule } from '@nestjs/swagger';
 import * as YAML from 'yamljs';
 
-export const db = new FakeDatabase();
+//export const db = new FakeDatabase();
 
 dotenv.config();
 
@@ -22,3 +21,13 @@ async function bootstrap() {
 }
 
 bootstrap();
+
+declare global {
+  interface BigInt {
+    toJSON(): string;
+  }
+}
+
+BigInt.prototype.toJSON = function (): string {
+  return this.toString();
+};
