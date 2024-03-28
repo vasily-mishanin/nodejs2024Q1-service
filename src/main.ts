@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import { SwaggerModule } from '@nestjs/swagger';
 import * as YAML from 'yamljs';
+import { MyLoggerService } from './logging/logging.service';
 
 //export const db = new FakeDatabase();
 
@@ -11,7 +12,11 @@ dotenv.config();
 const port = process.env.PORT || 4000;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
+
+  app.useLogger(app.get(MyLoggerService));
 
   const document = YAML.load('doc/api.yaml');
 
