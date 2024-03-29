@@ -6,10 +6,11 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { isValidUUID } from 'src/utils';
+import { LoggingService } from 'src/logging/logging.service';
 
 @Injectable()
 export class FavoritesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private logger: LoggingService) {}
 
   async createUserIfNotExists() {
     // we have no auth yet so lets create a user to add favorites to
@@ -74,6 +75,7 @@ export class FavoritesService {
   // ADD TO FAVORITES
   async addFavTrack(trackId: string) {
     if (!isValidUUID(trackId)) {
+      this.logger.error('400 - INVALID TRACK ID', trackId);
       throw new BadRequestException('Invalid id');
     }
 
@@ -82,6 +84,7 @@ export class FavoritesService {
         where: { id: trackId },
       });
     } catch (error) {
+      this.logger.warn(`422 - No track with id ${trackId} found`);
       throw new UnprocessableEntityException(
         `No track with id ${trackId} found`,
       );
@@ -99,6 +102,9 @@ export class FavoritesService {
 
       return newFavorite;
     } catch (error) {
+      this.logger.error(
+        `422 - Can not add Track with id ${trackId} to favorites`,
+      );
       throw new UnprocessableEntityException(
         `Can not add Track with id ${trackId} to favorites`,
       );
@@ -115,8 +121,9 @@ export class FavoritesService {
         where: { id: albumId },
       });
     } catch (error) {
+      this.logger.warn(`No album with id ${albumId} found`);
       throw new UnprocessableEntityException(
-        `No album with id ${albumId} found`,
+        `422 - No album with id ${albumId} found`,
       );
     }
 
@@ -132,6 +139,10 @@ export class FavoritesService {
 
       return newFavorite;
     } catch (error) {
+      this.logger.error(
+        `422 - Can not add Album with id ${albumId} to favorites`,
+      );
+
       throw new UnprocessableEntityException(
         `Can not add Album with id ${albumId} to favorites`,
       );
@@ -140,7 +151,8 @@ export class FavoritesService {
 
   async addFavArtist(artistId: string) {
     if (!isValidUUID(artistId)) {
-      throw new BadRequestException('Invalid id');
+      this.logger.error('400 - Invalid aritst id');
+      throw new BadRequestException('Invalid aritst id');
     }
 
     try {
@@ -148,6 +160,7 @@ export class FavoritesService {
         where: { id: artistId },
       });
     } catch (error) {
+      this.logger.warn(`422 - No artist with id ${artistId} found`);
       throw new UnprocessableEntityException(
         `No artist with id ${artistId} found`,
       );
@@ -165,6 +178,9 @@ export class FavoritesService {
 
       return newFavorite;
     } catch (error) {
+      this.logger.error(
+        `422 - Can not add Artist with id ${artistId} to favorites`,
+      );
       throw new UnprocessableEntityException(
         `Can not add Artist with id ${artistId} to favorites`,
       );
@@ -174,6 +190,7 @@ export class FavoritesService {
   // REMOVE FROM FAVORITES
   async removeFavTrack(trackId: string) {
     if (!isValidUUID(trackId)) {
+      this.logger.error('400 - Invalid track id', trackId);
       throw new BadRequestException('Invalid track id');
     }
 
@@ -185,6 +202,7 @@ export class FavoritesService {
     });
 
     if (!favorites) {
+      this.logger.warn(`404 - Track with id ${trackId} not found`);
       throw new NotFoundException(`Track with id ${trackId} not found`);
     }
 
@@ -201,6 +219,7 @@ export class FavoritesService {
 
   async removeFavAlbum(albumId: string) {
     if (!isValidUUID(albumId)) {
+      this.logger.error('400 - Invalid album id');
       throw new BadRequestException('Invalid album id');
     }
 
@@ -212,6 +231,7 @@ export class FavoritesService {
     });
 
     if (!favorites) {
+      this.logger.warn(`404 - Album with id ${albumId} not found`);
       throw new NotFoundException(`Album with id ${albumId} not found`);
     }
 
@@ -228,6 +248,7 @@ export class FavoritesService {
 
   async removeFavArtist(artistId: string) {
     if (!isValidUUID(artistId)) {
+      this.logger.error('400 - Invalid artist id');
       throw new BadRequestException('Invalid artist id');
     }
 
@@ -239,6 +260,7 @@ export class FavoritesService {
     });
 
     if (!favorites) {
+      this.logger.warn(`404 - Artist with id ${artistId} not found`);
       throw new NotFoundException(`Artist with id ${artistId} not found`);
     }
 
