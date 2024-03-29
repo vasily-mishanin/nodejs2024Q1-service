@@ -52,8 +52,8 @@ export class TracksService {
       });
       return track;
     } catch (error) {
-      this.logger.warn(`404 - Track with id ${id} not found`, error);
-      throw new NotFoundException(`Track with id ${id} not found`, error);
+      this.logger.warn(`404 - Track with id ${id} not found`);
+      throw new NotFoundException(`Track with id ${id} not found`);
     }
   }
 
