@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto, isString } from 'src/types';
@@ -34,5 +35,17 @@ export class AuthController {
     }
 
     return this.authService.signUp(signInDto.login, signInDto.password);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('refresh')
+  refresh(@Body() refreshDto: { refreshToken: string }) {
+    const { refreshToken } = refreshDto;
+    console.log('controller --- refreshToken ----  ', refreshToken);
+    if (!refreshToken || !isString(refreshToken)) {
+      throw new UnauthorizedException('Refresh token not provided');
+    }
+
+    return this.authService.refresh(refreshToken);
   }
 }

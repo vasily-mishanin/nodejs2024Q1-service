@@ -89,4 +89,48 @@ export class AuthService {
 
     return { access_token: accessToken, refresh_token: refreshToken };
   }
+
+  // REFRESH
+  async refresh(refreshToken: string) {
+    try {
+      // Verify the refresh token
+      const decodedToken = await this.jwtService.verifyAsync(refreshToken, {
+        secret: process.env.JWT_SECRET_REFRESH_KEY,
+      });
+      console.log({ decodedToken });
+      // Extract the user ID from the decoded token
+      const { userId, login } = decodedToken;
+
+      const existingUser = await this.usersService.findOnebyLogin(login);
+      // Compare the decoded token's userId claim with expected user ID
+      if (userId !== existingUser.id) {
+        throw new ForbiddenException('Invalid refresh token - invalid userId');
+      }
+
+      // Return a response indicating successful token verification
+      // "sub" and "username" by JWT conventions
+      const payload = { userId: existingUser.id, login: existingUser.login };
+
+      const newAccessToken = await this.jwtService.signAsync(payload, {
+        expiresIn: process.env.TOKEN_EXPIRE_TIME,
+        secret: process.env.JWT_SECRET_KEY,
+      });
+
+      const newRefreshToken = await this.jwtService.signAsync(payload, {
+        expiresIn: process.env.TOKEN_REFRESH_EXPIRE_TIME,
+        secret: process.env.JWT_SECRET_REFRESH_KEY,
+      });
+
+      return { access_token: newAccessToken, refresh_token: newRefreshToken };
+    } catch (error) {
+      // Handle token verification errors
+      if (error.name === 'TokenExpiredError') {
+        throw new ForbiddenException('Expired refresh token');
+      } else if (error.name === 'JsonWebTokenError') {
+        throw new ForbiddenException(`Invalid refresh token - ${error.name}`);
+      } else {
+        throw new ForbiddenException('Invalid or expired refresh token');
+      }
+    }
+  }
 }
