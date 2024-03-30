@@ -12,8 +12,10 @@ import * as path from 'path';
 export class LoggingService implements LoggerService {
   private logLevel: string;
   private logStream: NodeJS.WritableStream;
+  private logErrorsStream: NodeJS.WritableStream;
   private logDirectory = path.join(__dirname, 'logs');
-  private logFilePath = path.join(this.logDirectory, 'app_current_logs.log');
+  private logFilePath = path.join(this.logDirectory, 'app_logs.log');
+  private logErrorsFilePath = path.join(this.logDirectory, 'app_err_logs.log');
   private MAX_LOG_FILE_SIZE_BYTES = +process.env.MAX_LOG_FILE_SIZE_BYTES;
 
   constructor() {
@@ -24,6 +26,82 @@ export class LoggingService implements LoggerService {
       mkdirSync(this.logDirectory, { recursive: true });
     }
     this.logStream = createWriteStream(this.logFilePath, { flags: 'a' });
+    this.logErrorsStream = createWriteStream(this.logErrorsFilePath, {
+      flags: 'a',
+    });
+  }
+
+  private logToFile(level: string, message: any, optionalParams?: any[]) {
+    const timestamp = new Date().toISOString();
+    const logMessage = `[${timestamp}] [${level.toUpperCase()}]: ${message}\n`;
+
+    // log to another file if errors
+    if (level === 'ERROR' || level === 'FATAL') {
+      if (existsSync(this.logErrorsFilePath)) {
+        // Check log file size before writing
+        const errorsLogsFileSize = this.getLogFileSize(this.logErrorsFilePath);
+        if (errorsLogsFileSize > this.MAX_LOG_FILE_SIZE_BYTES) {
+          this.rotateLogFile('ERROR_FILE');
+        }
+      }
+
+      this.logErrorsStream.write(logMessage);
+    } else {
+      if (existsSync(this.logFilePath)) {
+        // Check log file size before writing
+        const currentSize = this.getLogFileSize(this.logFilePath);
+        if (currentSize > this.MAX_LOG_FILE_SIZE_BYTES) {
+          this.rotateLogFile('FILE');
+        }
+      }
+
+      // Write the log message to the log stream
+      this.logStream.write(logMessage);
+    }
+  }
+
+  private rotateLogFile(fileType: 'ERROR_FILE' | 'FILE') {
+    const timestamp = new Date().toISOString().replace(/:/g, '-');
+
+    if (fileType === 'ERROR_FILE') {
+      this.logErrorsStream.end();
+      const backupFileName = path.join(
+        this.logDirectory,
+        `app_err_${timestamp}.log`,
+      );
+
+      renameSync(this.logErrorsFilePath, backupFileName);
+      this.logErrorsStream = createWriteStream(this.logErrorsFilePath, {
+        flags: 'a',
+      });
+      console.log(
+        `\x1b[35mErrors log file rotated. Previous file renamed to ${backupFileName}. New log file started.\x1b[0m`,
+      );
+    } else {
+      // Close the current log stream
+      this.logStream.end();
+
+      const backupFileName = path.join(
+        this.logDirectory,
+        `app_${timestamp}.log`,
+      );
+
+      // Rename the current log file to a backup file
+      renameSync(this.logFilePath, backupFileName);
+
+      // Create a new log stream for the main log file
+      this.logStream = createWriteStream(this.logFilePath, { flags: 'a' });
+
+      // Log rotation event
+      console.log(
+        `\x1b[35mLog file rotated. Previous file renamed to ${backupFileName}. New log file started.\x1b[0m`,
+      );
+    }
+  }
+
+  private getLogFileSize(logFilePath: string): number {
+    const stats = statSync(logFilePath);
+    return stats.size;
   }
 
   private shouldLog(level: string): boolean {
@@ -31,58 +109,18 @@ export class LoggingService implements LoggerService {
     return logLevels.indexOf(level) >= logLevels.indexOf(this.logLevel);
   }
 
-  private logToFile(level: string, message: any, optionalParams?: any[]) {
-    const timestamp = new Date().toISOString();
-    const logMessage = `[${timestamp}] [${level.toUpperCase()}]: ${message}\n`;
-
-    if (existsSync(this.logFilePath)) {
-      // Check log file size before writing
-      const currentSize = this.getLogFileSize();
-      if (currentSize > this.MAX_LOG_FILE_SIZE_BYTES) {
-        this.rotateLogFile(currentSize);
-      }
-    }
-
-    // Write the log message to the log stream
-    this.logStream.write(logMessage);
-  }
-
-  private getLogFileSize(): number {
-    const stats = statSync(this.logFilePath);
-    return stats.size;
-  }
-
-  private rotateLogFile(currentSize: number) {
-    // Close the current log stream
-    this.logStream.end();
-
-    const timestamp = new Date().toISOString().replace(/:/g, '-');
-    const backupFileName = path.join(this.logDirectory, `app_${timestamp}.log`);
-
-    // Rename the current log file to a backup file
-    renameSync(this.logFilePath, backupFileName);
-
-    // Create a new log stream for the main log file
-    this.logStream = createWriteStream(this.logFilePath, { flags: 'a' });
-
-    // Log rotation event
-    console.log(
-      `\x1b[35mLog file rotated. Previous file renamed to ${backupFileName}. New log file started.\x1b[0m`,
-    );
-  }
-
   // INSTANCE METHODS
   log(message: any, ...optionalParams: any[]) {
     if (this.shouldLog('info')) {
       console.log('INFO:', message);
-      this.logToFile('INFO:', message);
+      this.logToFile('INFO', message);
     }
   }
 
   debug?(message: any, ...optionalParams: any[]) {
     if (this.shouldLog('debug')) {
       console.log('DEBUG:', message);
-      this.logToFile('DEBUG:', message);
+      this.logToFile('DEBUG', message);
     }
   }
 
@@ -94,14 +132,14 @@ export class LoggingService implements LoggerService {
         '-',
         optionalParams,
       );
-      this.logToFile('WARN:', message);
+      this.logToFile('WARN', message);
     }
   }
 
   error(message: any, ...optionalParams: any[]) {
     if (this.shouldLog('error')) {
       console.log('\x1b[31mERROR:\x1b[0m', message);
-      this.logToFile('ERROR:', message);
+      this.logToFile('ERROR', message);
     }
   }
 
