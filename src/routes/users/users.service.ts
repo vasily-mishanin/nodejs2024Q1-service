@@ -76,6 +76,17 @@ export class UsersService {
     return user;
   }
 
+  async findOnebyLogin(login: string) {
+    const user = await this.prisma.user.findFirst({ where: { login } });
+
+    if (!user) {
+      this.logger.warn(`404 - User with login ${login} not found`);
+      return null;
+    }
+
+    return user;
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     const { newPassword, oldPassword } = updateUserDto;
 

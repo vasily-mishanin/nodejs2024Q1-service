@@ -7,5 +7,6 @@ import { LoggingService } from 'src/logging/logging.service';
 @Module({
   controllers: [UsersController],
   providers: [UsersService, PrismaService, LoggingService],
+  exports: [UsersService],
 })
 export class UsersModule {}
