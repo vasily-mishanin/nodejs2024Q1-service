@@ -20,6 +20,15 @@ async function bootstrap() {
   app.useGlobalFilters(new CustomHttpExceptionFilter());
   app.useLogger(app.get(LoggingService));
 
+  process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception occurred:', error);
+    process.exit(1);
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  });
+
   const document = YAML.load('doc/api.yaml');
 
   SwaggerModule.setup('doc', app, document);
