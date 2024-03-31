@@ -9,11 +9,13 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto, isString } from 'src/types';
+import { CustomPublic } from 'src/public.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @CustomPublic()
   @HttpCode(HttpStatus.OK)
   @Post('login')
   signIn(@Body() signInDto: SignInDto) {
@@ -25,6 +27,7 @@ export class AuthController {
     return this.authService.signIn(signInDto.login, signInDto.password);
   }
 
+  @CustomPublic()
   @HttpCode(HttpStatus.CREATED)
   @Post('signup')
   signUp(@Body() signInDto: SignInDto) {
@@ -37,6 +40,7 @@ export class AuthController {
     return this.authService.signUp(signInDto.login, signInDto.password);
   }
 
+  @CustomPublic()
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
   refresh(@Body() refreshDto: { refreshToken: string }) {
