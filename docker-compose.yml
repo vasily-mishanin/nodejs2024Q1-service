@@ -11,8 +11,8 @@ services:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-    # ports:
-    #  - '5432:5432'
+    ports:
+      - '${DB_PORT}:${DB_PORT}'
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -27,12 +27,22 @@ services:
     ports:
       - '${APP_HOST_PORT}:${APP_CONTAINER_PORT}'
     environment:
-      # NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT}
+      CRYPT_SALT: ${CRYPT_SALT}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_SECRET_REFRESH_KEY: ${JWT_SECRET_REFRESH_KEY}
+      TOKEN_EXPIRE_TIME: ${TOKEN_EXPIRE_TIME}
+      TOKEN_REFRESH_EXPIRE_TIME: ${TOKEN_REFRESH_EXPIRE_TIME}
+      DB_DOCKER_HOST: ${DB_DOCKER_HOST}
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_PORT: ${DB_PORT}
       DATABASE_URL: ${DATABASE_URL_DOCKER_COMPOSE}
+      APP_CONTAINER_PORT: ${APP_CONTAINER_PORT}
+      APP_HOST_PORT: ${APP_HOST_PORT}
+      LOG_LEVEL: ${LOG_LEVEL}
+      MAX_LOG_FILE_SIZE_BYTES: ${MAX_LOG_FILE_SIZE_BYTES}
     depends_on:
       - db_postgres
     networks:
