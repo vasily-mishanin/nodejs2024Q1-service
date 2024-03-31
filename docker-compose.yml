@@ -32,7 +32,7 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_PORT: ${DB_PORT}
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: ${DATABASE_URL_DOCKER_COMPOSE}
     depends_on:
       - db_postgres
     networks:
