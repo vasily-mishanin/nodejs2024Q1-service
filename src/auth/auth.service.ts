@@ -27,7 +27,10 @@ export class AuthService {
     const existingUser = await this.usersService.findOnebyLogin(login);
     console.log('SIGN-UP', existingUser);
     if (existingUser) {
-      this.logger.warn('WARN', `Username with login "${login}" already exists`);
+      this.logger.warn(
+        'WARN',
+        `409 - Username with login "${login}" already exists`,
+      );
       throw new ConflictException(
         `Username with login "${login}" already exists`,
       );
@@ -66,6 +69,7 @@ export class AuthService {
     const existingUser = await this.usersService.findOnebyLogin(login);
 
     if (!existingUser) {
+      this.logger.warn('WARN', `404 - User with login "${login}" not found`);
       throw new NotFoundException(`User with login "${login}" not found`);
     }
 
@@ -75,6 +79,7 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
+      this.logger.warn('WARN', `401 - Invalid credentials - invalid password`);
       throw new UnauthorizedException('Invalid credentials - invalid password');
     }
 
@@ -108,6 +113,10 @@ export class AuthService {
       const existingUser = await this.usersService.findOnebyLogin(login);
       // Compare the decoded token's userId claim with expected user ID
       if (userId !== existingUser.id) {
+        this.logger.warn(
+          'WARN',
+          `403 - Invalid refresh token - invalid userId`,
+        );
         throw new ForbiddenException('Invalid refresh token - invalid userId');
       }
 
@@ -129,10 +138,16 @@ export class AuthService {
     } catch (error) {
       // Handle token verification errors
       if (error.name === 'TokenExpiredError') {
+        this.logger.error('ERROR', `403 - Expired refresh token`);
         throw new ForbiddenException('Expired refresh token');
       } else if (error.name === 'JsonWebTokenError') {
+        this.logger.error(
+          'ERROR',
+          `403 - Invalid refresh token - ${error.name}`,
+        );
         throw new ForbiddenException(`Invalid refresh token - ${error.name}`);
       } else {
+        this.logger.error('ERROR', `403 - Invalid or expired refresh token`);
         throw new ForbiddenException('Invalid or expired refresh token');
       }
     }
