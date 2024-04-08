@@ -8,14 +8,16 @@ import { UpdateArtistDto } from './dto/update-artist.dto';
 import { isValidUUID } from 'src/utils';
 import { isBoolean } from 'class-validator';
 import { PrismaService } from 'src/prisma.service';
+import { LoggingService } from 'src/logging/logging.service';
 
 @Injectable()
 export class ArtistsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private logger: LoggingService) {}
 
   async create(createArtistDto: CreateArtistDto) {
     const { name, grammy } = createArtistDto;
     if (!name || !isBoolean(grammy)) {
+      this.logger.error('400 - Invalid data to create artist');
       throw new BadRequestException('Invalid data to create artist');
     }
     // const artist = db.createArtist(createArtistDto);
@@ -29,7 +31,8 @@ export class ArtistsService {
 
   async findOne(id: string) {
     if (!isValidUUID(id)) {
-      throw new BadRequestException('Invalid id');
+      this.logger.error('400 - Invalid artist id');
+      throw new BadRequestException('Invalid artist id');
     }
 
     try {
@@ -38,6 +41,7 @@ export class ArtistsService {
       });
       return artist;
     } catch (error) {
+      this.logger.warn(`404 - Artist with id ${id} not found`);
       throw new NotFoundException(`Artist with id ${id} not found`);
     }
   }
@@ -48,6 +52,7 @@ export class ArtistsService {
       !updateArtistDto.name ||
       !isBoolean(updateArtistDto.grammy)
     ) {
+      this.logger.error(`400 - Invalid data to update artist`);
       throw new BadRequestException('Invalid data to update artist');
     }
 
@@ -56,6 +61,7 @@ export class ArtistsService {
     });
 
     if (!existingArtist) {
+      this.logger.warn(`404 - Updating artist with id ${id} not found`);
       throw new NotFoundException(`Updating artist with id ${id} not found`);
     }
 
@@ -69,13 +75,15 @@ export class ArtistsService {
 
   async remove(id: string) {
     if (!isValidUUID(id)) {
-      throw new BadRequestException('Invalid id');
+      this.logger.error(`400 - Invalid artist id ${id}`);
+      throw new BadRequestException('Invalid artist id');
     }
 
     try {
       const removedArtist = await this.prisma.artist.delete({ where: { id } });
       return removedArtist;
     } catch (error) {
+      this.logger.warn(`404 - Deleting artist with id ${id} not found`);
       throw new NotFoundException(`Deleting artist with id ${id} not found`);
     }
   }

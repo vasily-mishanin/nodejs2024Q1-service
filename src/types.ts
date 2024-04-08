@@ -76,3 +76,15 @@ export enum ErrorMessages {
 export interface BigInt {
   toJSON(): string;
 }
+
+// AUTH
+
+// DTO
+export interface SignInDto {
+  login: string;
+  password: string;
+}
+
+// Guards
+
+export const isString = (v: any) => typeof v === 'string';

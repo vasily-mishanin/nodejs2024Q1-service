@@ -2,9 +2,9 @@
 FROM postgres:latest
 
 # Set environment variables for PostgreSQL
-# ENV POSTGRES_DB=restmusicdb
-# ENV POSTGRES_USER=justuser
-# ENV POSTGRES_PASSWORD=qwe123
+ ENV POSTGRES_DB=restmusicdb
+ ENV POSTGRES_USER=justuser
+ ENV POSTGRES_PASSWORD=qwe123
 
 # Expose the PostgreSQL port
 EXPOSE 5432
